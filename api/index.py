@@ -95,7 +95,7 @@ def chatbot(message: str = ""):
     <body>
         <div class="chat">
             <div class="msg-bot">
-                Olá! 👋 Sou uma IA rodando via OpenRouter. Pergunte algo!
+                Olá! 👋 Sou o Orion, atendente IA da Presoft. Como posso ajudar?
             </div>
 
             {f'<div class="msg-user">{message}</div>' if message else ''}
