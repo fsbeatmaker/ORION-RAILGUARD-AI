@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 import os
-from openai import OpenAI
+import requests
 
 app = FastAPI()
+
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 @app.get("/", response_class=HTMLResponse)
 def chatbot(message: str = ""):
@@ -11,14 +13,30 @@ def chatbot(message: str = ""):
 
     if message:
         try:
-            client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+            headers = {
+                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "HTTP-Referer": "https://vercel.com",
+                "X-Title": "Chatbot IA OpenRouter",
+                "Content-Type": "application/json"
+            }
 
-            response = client.responses.create(
-                model="gpt-4o-mini",
-                input=message
+            payload = {
+                "model": "mistralai/mistral-7b-instruct",
+                "messages": [
+                    {"role": "system", "content": "Você é um chatbot amigável, educado e inteligente."},
+                    {"role": "user", "content": message}
+                ]
+            }
+
+            response = requests.post(
+                "https://openrouter.ai/api/v1/chat/completions",
+                headers=headers,
+                json=payload,
+                timeout=20
             )
 
-            resposta = response.output_text
+            data = response.json()
+            resposta = data["choices"][0]["message"]["content"]
 
         except Exception as e:
             resposta = f"Erro ao gerar resposta da IA: {str(e)}"
@@ -31,7 +49,7 @@ def chatbot(message: str = ""):
         <title>Chatbot IA</title>
         <style>
             body {{
-                font-family: Arial, sans-serif;
+                font-family: Arial;
                 background: #f4f4f4;
                 display: flex;
                 justify-content: center;
@@ -44,19 +62,6 @@ def chatbot(message: str = ""):
                 border-radius: 10px;
                 width: 420px;
                 box-shadow: 0 0 10px rgba(0,0,0,0.1);
-            }}
-            .bot {{
-                background: #e0e0e0;
-                padding: 10px;
-                border-radius: 5px;
-                margin-bottom: 10px;
-            }}
-            .user {{
-                background: #d1e7dd;
-                padding: 10px;
-                border-radius: 5px;
-                margin-bottom: 10px;
-                text-align: right;
             }}
             input {{
                 width: 100%;
@@ -73,16 +78,28 @@ def chatbot(message: str = ""):
                 border-radius: 5px;
                 cursor: pointer;
             }}
+            .msg-user {{
+                background: #d1e7dd;
+                padding: 8px;
+                border-radius: 5px;
+                margin-top: 10px;
+            }}
+            .msg-bot {{
+                background: #e0e0e0;
+                padding: 8px;
+                border-radius: 5px;
+                margin-top: 10px;
+            }}
         </style>
     </head>
     <body>
         <div class="chat">
-            <div class="bot">
-                Olá! 👋 Eu sou uma IA generativa estilo ChatGPT.
+            <div class="msg-bot">
+                Olá! 👋 Sou uma IA rodando via OpenRouter. Pergunte algo!
             </div>
 
-            {f'<div class="user">{message}</div>' if message else ''}
-            {f'<div class="bot">{resposta}</div>' if resposta else ''}
+            {f'<div class="msg-user">{message}</div>' if message else ''}
+            {f'<div class="msg-bot">{resposta}</div>' if resposta else ''}
 
             <form method="get">
                 <input name="message" placeholder="Digite sua mensagem..." autofocus />
