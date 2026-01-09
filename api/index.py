@@ -46,7 +46,7 @@ def chatbot(message: str = ""):
     <html lang="pt-br">
     <head>
         <meta charset="UTF-8">
-        <title>Incode Orion AI</title>
+        <title>Orion Railguard AI</title>
         <style>
             body {{
                 font-family: Arial;
@@ -95,7 +95,7 @@ def chatbot(message: str = ""):
     <body>
         <div class="chat">
             <div class="msg-bot">
-                Olá! 👋 Sou o Orion, atendente IA da Incode Academy. Como posso ajudar?
+                Olá! 👋 Sou o Orion, atendente IA da Presoft. Como posso ajudar?
             </div>
 
             {f'<div class="msg-user">{message}</div>' if message else ''}
